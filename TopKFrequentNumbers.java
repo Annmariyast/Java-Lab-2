@@ -1,63 +1,82 @@
-import java.util.*;
+import java.util.Scanner;
 
-public class TopKFrequentNumbers {
-    // Static variable to store the input array
-    static int[] arr;
+public class TopKFrequency {
+
+    
+    static int[] nums;
 
     // Static method to find the top K frequent numbers
     public static void findTopKFrequent(int K) {
-        // Step 1: Create a HashMap to store the frequency of each number
-        Map<Integer, Integer> frequencyMap = new HashMap<>();
-        for (int num : arr) {
-            frequencyMap.put(num, frequencyMap.getOrDefault(num, 0) + 1);
-        }
+        int n = nums.length;
+        int[][] freq = new int[n][2]; // 2D array to store numbers and their frequencies
 
-        // Step 2: Create a list from elements of HashMap4
-        List<Map.Entry<Integer, Integer>> frequencyList = new ArrayList<>(frequencyMap.entrySet());
-
-        // Step 3: Sort the list by frequency, and by value if frequencies are the same
-        frequencyList.sort((a, b) -> {
-            if (b.getValue().equals(a.getValue())) {
-                return b.getKey() - a.getKey(); // Sort by number in descending order if frequencies are equal
+        // Step 1: Count the frequency of each number
+        for (int i = 0; i < n; i++) {
+            boolean found = false;
+            for (int j = 0; j < n; j++) {
+                if (freq[j][0] == nums[i]) {
+                    freq[j][1]++; // Increment frequency if the number is already counted
+                    found = true;
+                    break;
+                }
             }
-            return b.getValue() - a.getValue(); // Sort by frequency in descending order
-        });
-
-        // Step 4: Output the top K frequent numbers
-        System.out.println("Top " + K + " numbers with highest frequency:");
-        for (int i = 0; i < K; i++) {
-            System.out.print(frequencyList.get(i).getKey() + " ");
+            if (!found) {
+                for (int j = 0; j < n; j++) {
+                    if (freq[j][0] == 0 && freq[j][1] == 0) { // Empty spot in freq array
+                        freq[j][0] = nums[i]; // Store the number
+                        freq[j][1] = 1; // Set frequency to 1
+                        break;
+                    }
+                }
+            }
         }
+
+        // Step 2: Sort the numbers based on their frequency and value
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                // Sort by frequency in descending order, and by value in case of tie
+                if (freq[i][1] < freq[j][1] || (freq[i][1] == freq[j][1] && freq[i][0] < freq[j][0])) {
+                    // Swap the elements
+                    int tempNum = freq[i][0];
+                    int tempFreq = freq[i][1];
+                    freq[i][0] = freq[j][0];
+                    freq[i][1] = freq[j][1];
+                    freq[j][0] = tempNum;
+                    freq[j][1] = tempFreq;
+                }
+            }
+        }
+
+        // Step 3: Output the top K numbers with the highest frequency
+        int printed = 0;
+        for (int i = 0; i < n && printed < K; i++) {
+            if (freq[i][1] > 0) { // Only print numbers with non-zero frequency
+                System.out.print(freq[i][0] + " ");
+                printed++;
+            }
+        }
+        System.out.println();
     }
 
-    // Main method to accept user input and call the static method
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
 
-        // Accept array size from the user
-        System.out.print("Enter the number of elements in the array: ");
-        int n = scanner.nextInt();
+        // Input: Enter the number of elements (N)
+        System.out.println("Enter the number of elements (N):");
+        int N = sc.nextInt();
+        nums = new int[N]; // Initialize the static array
 
-        // Initialize the array and accept elements from the user
-        arr = new int[n];
-        System.out.println("Enter " + n + " elements:");
-        for (int i = 0; i < n; i++) {
-            arr[i] = scanner.nextInt();
+        // Input: Enter the array elements
+        System.out.println("Enter the array elements:");
+        for (int i = 0; i < N; i++) {
+            nums[i] = sc.nextInt();
         }
 
-        // Accept the value of K
-        System.out.print("Enter the value of K: ");
-        int K = scanner.nextInt();
+        // Input: Enter the value of K
+        System.out.println("Enter the value of K:");
+        int K = sc.nextInt();
 
-        // Check if K is valid
-        if (K > n || K <= 0) {
-            System.out.println("K must be a positive integer less than or equal to the number of elements in the array.");
-        } else {
-            // Call the static method to find the top K frequent numbers
-            findTopKFrequent(K);
-        }
-
-        // Close the scanner
-        scanner.close();
+        // Call the method to find and print the top K frequent numbers
+        findTopKFrequent(K);
     }
 }
